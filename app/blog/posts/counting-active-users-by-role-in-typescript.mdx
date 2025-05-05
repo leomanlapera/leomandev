@@ -1,0 +1,100 @@
+---
+title: "Counting Active Users by Role in TypeScript (with Unit Tests)"
+publishedAt: "2025-05-05"
+summary: "A TypeScript utility to count active users by role using `filter` and `reduce`, with Jest tests included. Perfect for dashboards and user analytics."
+---
+
+When building admin dashboards or analytics views, it's common to report on user activity — especially by user roles like admin, editor, or viewer. In this post, we'll walk through a small utility function in TypeScript that **counts active users grouped by their role**, and we'll include **unit tests** to ensure it behaves correctly.
+
+## The Function: countActiveUsersByRole
+
+Let's say you receive a list of user objects like this:
+
+```ts
+{
+  id: 1,
+  name: "Alice",
+  role: "admin",
+  isActive: true
+}
+```
+
+Your goal is to count how many **active users** exist for each **role**. Here's the function that does exactly that:
+
+```ts
+export const countActiveUsersByRole = (
+  users:
+    | Array<{
+        id: number;
+        name: string;
+        role: string;
+        isActive: boolean;
+      }>
+    | null
+    | undefined
+) => {
+  if (!Array.isArray(users)) return {};
+
+  return users
+    .filter((user) => user.isActive)
+    .reduce<Record<string, number>>((acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    }, {});
+};
+```
+
+## How it works
+
+1. **Guard Clause**: Returns an empty object if **users** is **null**, **undefined**, or not an array.
+2. **Filter**: Keeps only users where **isActive === true**.
+3. **Reduce**: Accumulates a count of active users by their **role**.
+
+## Unit Tests with Jest
+
+To make sure our function behaves correctly, here are some test cases:
+
+```ts
+import { countActiveUsersByRole } from "./countActiveUsersByRole";
+
+describe("countActiveUsersByRole", () => {
+  const users = [
+    { id: 1, name: "Alice", role: "admin", isActive: true },
+    { id: 2, name: "Bob", role: "editor", isActive: false },
+    { id: 3, name: "Charlie", role: "admin", isActive: true },
+    { id: 4, name: "Dave", role: "editor", isActive: true },
+    { id: 5, name: "Eve", role: "viewer", isActive: true },
+  ];
+
+  it("returns active users with role as key and value as count", () => {
+    const result = countActiveUsersByRole(users);
+    expect(result).toEqual({ admin: 2, editor: 1, viewer: 1 });
+  });
+
+  it("returns an empty object if non-array is passed", () => {
+    expect(countActiveUsersByRole(null)).toEqual({});
+  });
+});
+```
+
+## Explanation of Tests
+
+- **Test 1**: Ensures active users are counted by their role.
+- **Test 2**: Ensures the function safely handles **null** or invalid input.
+
+## Bonus: Why This Is Useful
+
+This utility function is perfect for use in:
+
+- Admin dashboards
+- Analytics reports
+- Role-based access summaries
+
+It's also type-safe, defensive (handles edge cases), and easy to test.
+
+## Wrap-up
+
+This function is a great example of **clean functional logic** combined with **type safety** and **unit testing**. It's small but solves a real-world need in many backend and frontend apps.
+
+**Need this in your project? Just copy and paste the code — and don't forget to
+add tests.**
