@@ -1,0 +1,146 @@
+---
+title: "Mastering Array.reduce() with Real-World Use Cases in JavaScript"
+publishedAt: "2025-05-06"
+summary: "Learn how to use JavaScript's powerful Array.reduce() method to group users by department and role and calculate total salaries by department with real-world code examples and tests."
+---
+
+One of the most versatile tools in **JavaScript** is the .reduce() method. Despite its power, many developers find it intimidating at first. In this article, we'll break it down using real-world examples involving **users**, **departments**, roles—and even **salaries**.
+
+Let's walk through two practical functions that use **reduce** to transform data into more useful structures.
+
+## 1. Grouping Users by Department and Role
+
+Suppose we have a list of **users**, and we want to group them by their department and then by their role within that department.
+
+Here's how it's done using reduce:
+
+```ts
+export const groupUsersByDepartmentAndRole = (
+  users:
+    | Array<{
+        name: string;
+        department: string;
+        role: string;
+      }>
+    | null
+    | undefined
+) => {
+  if (!Array.isArray(users)) return {};
+
+  return users.reduce<Record<string, Record<string, string[]>>>((acc, user) => {
+    if (!acc[user.department]) {
+      acc[user.department] = {};
+    }
+
+    if (!acc[user.department][user.role]) {
+      acc[user.department][user.role] = [];
+    }
+
+    acc[user.department][user.role].push(user.name);
+
+    return acc;
+  }, {});
+};
+```
+
+## What's Happening Here?
+
+- We check if the input is a valid array.
+- We use reduce to loop through each user.
+- We build a nested object where:
+  - Top-level keys are **departments**.
+  - Second-level keys are **roles**.
+  - The values are arrays of **user names**.
+
+## Example Input:
+
+```ts
+[
+  { name: "Alice", department: "Sales", role: "Manager" },
+  { name: "Bob", department: "Engineering", role: "Developer" },
+  { name: "Charlie", department: "Sales", role: "Associate" },
+  { name: "Dave", department: "Sales", role: "Manager" },
+];
+```
+
+## Output:
+
+```ts
+{
+  Sales: {
+    Manager: ["Alice", "Dave"],
+    Associate: ["Charlie"]
+  },
+  Engineering: {
+    Developer: ["Bob"]
+  }
+}
+```
+
+## 2. Summing Salaries by Department
+
+Another powerful use of **reduce** is aggregation—like calculating totals.
+
+Here's a function that totals up salaries by department:
+
+```ts
+export const sumSalariesByDepartment = (
+  users:
+    | Array<{
+        name: string;
+        department: string;
+        salary: number;
+      }>
+    | null
+    | undefined
+) => {
+  if (!Array.isArray(users)) return {};
+
+  return users.reduce<Record<string, number>>((acc, user) => {
+    if (!acc[user.department]) {
+      acc[user.department] = 0;
+    }
+
+    acc[user.department] += user.salary;
+
+    return acc;
+  }, {});
+};
+```
+
+## Test Cases:
+
+```ts
+describe("sumSalariesByDepartment", () => {
+  const users = [
+    { name: "Alice", department: "Sales", salary: 5000 },
+    { name: "Bob", department: "Engineering", salary: 7000 },
+    { name: "Charlie", department: "Sales", salary: 6000 },
+  ];
+
+  it("returns a sum of salaries object by department", () => {
+    expect(sumSalariesByDepartment(users)).toEqual({
+      Sales: 11000,
+      Engineering: 7000,
+    });
+  });
+
+  it("returns an empty object if non-array is passed", () => {
+    expect(sumSalariesByDepartment(null)).toEqual({});
+  });
+});
+```
+
+## Why Use reduce?
+
+The .reduce() method is great for:
+
+- Converting arrays into objects
+- Aggregating or summarizing data
+- Transforming data into any shape you need
+
+It may seem complex at first, but as you've seen, it can significantly simplify data transformations that would otherwise require verbose looping logic.
+
+## Final Thoughts
+
+The more you use **reduce**, the more powerful it becomes. With just a single method, you can restructure, group, and summarize your data elegantly. Try using it in your own projects—you'll quickly see its potential.
