@@ -1,6 +1,6 @@
 import { getBlogPosts } from "app/blog/utils";
 
-export const baseUrl = "https://leomandev.vercel.app";
+export const baseUrl = "https://www.leoman.dev";
 
 export default async function sitemap() {
   let blogs = getBlogPosts().map((post) => ({
