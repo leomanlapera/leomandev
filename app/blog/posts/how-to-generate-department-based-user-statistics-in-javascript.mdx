@@ -1,0 +1,98 @@
+---
+title: "How to Generate Department-Based User Statistics in JavaScript"
+publishedAt: "2025-05-01"
+summary: "Learn how to group and analyze user data by department in JavaScript. This guide shows how to use reduce() to calculate total and active users per department with a clean, reusable function."
+---
+
+When working with user data, it's often necessary to group and analyze users by departments, roles, or other categories. In this post, we'll walk through a simple utility function that calculates total users and how many are currently active in each department.
+
+## The Dataset
+
+Suppose we have an array of user objects like this:
+
+```ts
+const users = [
+  { id: 1, name: "Alice", department: "Engineering", isActive: true },
+  { id: 2, name: "Bob", department: "Marketing", isActive: false },
+  { id: 3, name: "Charlie", department: "Engineering", isActive: true },
+  { id: 4, name: "Dave", department: "Sales", isActive: true },
+  { id: 5, name: "Eve", department: "Engineering", isActive: false },
+  { id: 6, name: "Faythe", department: "Sales", isActive: true },
+];
+```
+
+Each user belongs to a **department** and has an **isActive** status.
+
+## The Utility Function
+
+Let's create a function that takes this array and returns a breakdown of how many users exist in each department, along with how many are currently active:
+
+```ts
+export const getUserStatsByDepartment = (
+  users:
+    | Array<{
+        id: number;
+        name: string;
+        department: string;
+        isActive: boolean;
+      }>
+    | null
+    | undefined
+) => {
+  if (!Array.isArray(users)) return {};
+
+  return users.reduce<Record<string, { total: number; active: number }>>(
+    (acc, user) => {
+      const { department, isActive } = user;
+
+      if (!acc[department]) {
+        acc[department] = { total: 0, active: 0 };
+      }
+
+      acc[department].total += 1;
+
+      if (isActive) {
+        acc[department].active += 1;
+      }
+
+      return acc;
+    },
+    {}
+  );
+};
+```
+
+## How It Works
+
+1. **Input Validation**: We first check if the **users** input is a valid array. If not, we return an empty object.
+2. **Reduce Logic**: We use <code>reduce()</code> to accumulate department-level stats into a single object.
+3. **Dynamic Keys**: For each user, we use their **department** as a dynamic key in the accumulator.
+4. **Stat Tracking**: We increment the **total** for every user and the **active** count only if **isActive** is **true**.
+
+## Example Output
+
+Calling the function like so:
+
+```ts
+getUserStatsByDepartment(users);
+```
+
+...returns:
+
+```ts
+{
+  Engineering: { total: 3, active: 2 },
+  Marketing: { total: 1, active: 0 },
+  Sales: { total: 2, active: 2 },
+}
+```
+
+## Why This Is Useful
+
+This pattern is useful in many real-world scenarios:
+
+- **Admin dashboards**: Show active staff per department.
+- **Team overviews**: See who's actively working in different segments.
+- **HR tools**: Filter and analyze workforce metrics by categories.
+
+You can even extend this function to support filtering by role, location, or other fields by slightly tweaking the logic.
