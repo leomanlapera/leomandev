@@ -1,0 +1,167 @@
+---
+title: "TypeScript Utility: Finding Departments with High Average Salary"
+publishedAt: "2025-05-08"
+summary: "Learn how to use TypeScript to identify departments where the average salary exceeds a threshold. Ideal for HR dashboards, analytics, and salary insights."
+---
+
+When working with employee data, it's often necessary to perform analytics based on specific criteria. One such task is identifying **which departments have a higher-than-average salary** compared to a threshold. In this post, we'll explore a utility function in TypeScript that does exactly that — filtering departments based on their average salary.
+
+## The Code
+
+```ts
+type Employee = {
+  name: string;
+  department: string;
+  salary: number;
+};
+
+export const getDepartmentsWithHighAverageSalary = (
+  users: Employee[] | null | undefined,
+  salaryThreshold: number
+): string[] => {
+  if (!Array.isArray(users)) return [];
+
+  const deptStats = users.reduce<
+    Record<string, { total: number; count: number }>
+  >((acc, user) => {
+    if (!acc[user.department]) {
+      acc[user.department] = { total: 0, count: 0 };
+    }
+
+    acc[user.department].total += user.salary;
+    acc[user.department].count += 1;
+
+    return acc;
+  }, {});
+
+  return Object.entries(deptStats)
+    .filter(([_, { total, count }]) => total / count > salaryThreshold)
+    .map(([department]) => department);
+};
+```
+
+## Code Breakdown with Sample Output
+
+Let's break the function down step-by-step and see it in action with a sample dataset.
+
+## Function Recap
+
+```ts
+type Employee = {
+  name: string;
+  department: string;
+  salary: number;
+};
+
+export const getDepartmentsWithHighAverageSalary = (
+  users: Employee[] | null | undefined,
+  salaryThreshold: number
+): string[] => {
+  if (!Array.isArray(users)) return [];
+
+  const deptStats = users.reduce<
+    Record<string, { total: number; count: number }>
+  >((acc, user) => {
+    if (!acc[user.department]) {
+      acc[user.department] = { total: 0, count: 0 };
+    }
+
+    acc[user.department].total += user.salary;
+    acc[user.department].count += 1;
+
+    return acc;
+  }, {});
+
+  return Object.entries(deptStats)
+    .filter(([_, { total, count }]) => total / count > salaryThreshold)
+    .map(([department]) => department);
+};
+```
+
+## Sample Input
+
+```ts
+const employees: Employee[] = [
+  { name: "Alice", department: "Engineering", salary: 95000 },
+  { name: "Bob", department: "Engineering", salary: 105000 },
+  { name: "Charlie", department: "Sales", salary: 60000 },
+  { name: "Diana", department: "Sales", salary: 65000 },
+  { name: "Eve", department: "Marketing", salary: 50000 },
+  { name: "Frank", department: "Marketing", salary: 48000 },
+];
+
+const result = getDepartmentsWithHighAverageSalary(employees, 70000);
+console.log(result);
+```
+
+## How It Works
+
+1. **Initial validation**:<br />
+   If employees is null or undefined, it returns [].
+
+2. **Reduce step**:<br />
+   It groups employees by department, summing their salaries and counting entries.
+
+- Engineering: Total = 200,000; Count = 2 → Avg = 100,000
+- Sales: Total = 125,000; Count = 2 → Avg = 62,500
+- Marketing: Total = 98,000; Count = 2 → Avg = 49,000
+
+3. **Filtering**:<br />
+   Only departments where average salary > 70,000 are kept.
+
+4. **Mapping**:<br />
+   Returns just the department names.
+
+## Output
+
+```ts
+["Engineering"];
+```
+
+## Why Only Engineering?
+
+Because:
+
+- **Engineering Avg**: (95000 + 105000) / 2 = 100,000
+- **Sales Avg**: (60000 + 65000) / 2 = 62,500
+- **Marketing Avg**: (50000 + 48000) / 2 = 49,000
+
+Only **Engineering** has an average salary greater than <code>70,000</code>.
+
+## Key Points
+
+- **Type-Safety with Employee Interface**<br />
+  Each employee is represented by a name, <code>department</code>, and <code>salary</code>. This ensures clear expectations on data structure.
+
+- **Null-Safe Input Handling**<br />
+  Before proceeding, the function checks if <code>users</code> is a valid array — useful for avoiding runtime errors with <code>null</code> or <code>undefined</code>.
+
+- **Departmental Aggregation**<br />
+  Using <code>reduce</code>, the function aggregates total salaries and counts for each department.
+
+- **Average Calculation**<br />
+  Departments are filtered based on whether thei**r average salary** <code>(total / count)</code> exceeds the <code>salaryThreshold</code>.
+
+- **Functional, Readable Approach**<br />
+  The combination of <code>reduce</code>, <code>Object.entries</code>, <code>filter</code>, and <code>map</code> keeps the logic clean and declarative.
+
+## When This Is Useful
+
+- **HR Dashboards or Reports**: To highlight high-earning departments.
+- **Auditing Salary Distribution**: For internal salary reviews or budget planning.
+- **Access Control**: If high-paid departments are granted premium features.
+
+## When Not To Use This
+
+- **Real-Time Data with Frequent Changes**<br />
+  If your data changes often and performance is critical, consider memoization or aggregating data in a database instead.
+
+- **Complex Salary Structures**<br />
+  If salary needs to be normalized, adjusted for bonuses, or calculated from multiple sources, this simple average approach won’t be enough.
+
+- **Very Large Datasets in Browser**<br />
+  For large-scale datasets, pushing this logic to a backend or using a data processing library might be more performant.
+
+## Final Thoughts
+
+This utility is a **neat and practical solution** when you need quick insights into salary distributions across departments. While it's excellent for small to medium datasets or server-side batch processing, for more complex or large-scale scenarios, consider database-level aggregation or data streaming techniques.
