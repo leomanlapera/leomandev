@@ -1,0 +1,94 @@
+---
+title: "Filtering High-Earning Departments in TypeScript"
+publishedAt: "2025-05-10"
+summary: "Learn how to filter departments with above-threshold average salaries using TypeScript. Perfect for HR data analysis, dashboards, and reporting use cases."
+---
+
+When analyzing employee data, a common requirement is to extract insights based on departments. One such use case is identifying **departments with above-average salaries**.
+
+Let's walk through a simple but powerful function written in Typescript that accomplishes just that.
+
+## The Problem
+
+You're given a list of employees with their name, department, and salary. You want to return a list of department names where the **average salary** exceeds a specified threshold.
+
+## The Data Structure
+
+Here's the <code>Employee</code> type we're working with:
+
+```ts
+type Employee = {
+  name: string;
+  department: string;
+  salary: number;
+};
+```
+
+## The Function: <code>getDepartmentsWithHighAverageSalary</code>
+
+```ts
+export const getDepartmentsWithHighAverageSalary = (
+  users: Employee[] | null | undefined,
+  salaryThreshold: number
+): string[] => {
+  if (!Array.isArray(users)) return [];
+
+  const deptStats = users.reduce<
+    Record<string, { total: number; count: number }>
+  >((acc, user) => {
+    if (!acc[user.department]) {
+      acc[user.department] = { total: 0, count: 0 };
+    }
+
+    acc[user.department].total += user.salary;
+    acc[user.department].count += 1;
+
+    return acc;
+  }, {});
+
+  return Object.entries(deptStats)
+    .filter(([_, { total, count }]) => total / count > salaryThreshold)
+    .map(([department]) => department);
+};
+```
+
+## How It Works
+
+1. **Input validation**: First, we check if the <code>users</code> input is a valid array. If not, we return an empty array.
+
+2. **Aggregate data by department**: using <code>.reduce</code>, we build a lookup object (<code>deepStats</code>) that accumulates:
+
+   - total salary per department
+   - number of employees per department
+
+3. **Calculate averages**: We use <code>Object.entries</code> to iterate over each department's data and filter out those whose average salary is below the threshold.
+
+4. **Return result**: Finally, we return just the department names that meet the criteria.
+
+## Example Usage
+
+```ts
+const employees: Employee[] = [
+  { name: "Alice", department: "Engineering", salary: 120000 },
+  { name: "Bob", department: "Engineering", salary: 110000 },
+  { name: "Charlie", department: "HR", salary: 60000 },
+  { name: "Diana", department: "HR", salary: 65000 },
+];
+
+const highPaying = getDepartmentsWithHighAverageSalary(employees, 100000);
+console.log(highPaying); // ["Engineering"]
+```
+
+## Type Safety + Edge Case Handling
+
+This function gracefully handles <code>null</code> or <code>undefined</code> input, thanks to the <code>Array.isArray</code> check. It's also fully typed with TypeScript for better DX (developer experience) and fewer runtime surprises.
+
+## Final Thoughts
+
+This pattern&mdash;grouping and aggregating data&mdash;is ver common in real-world applications like reporting dashboards, HR systems, or analytics engines.
+
+You can easily adapt this logic for things like:
+
+- Filtering top-performing sales regions
+- Calculating average product ratings
+- Analyzing time-tracking data
