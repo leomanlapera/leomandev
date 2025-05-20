@@ -1,0 +1,106 @@
+---
+title: "JavaScript Snippet: Find the Most Experienced Dev Per Role Using .reduce()"
+publishedAt: "2025-05-20"
+summary: "Ever had a list of engineers and wanted to quickly figure out who’s been around the longest in each role? Maybe for a dev team dashboard, contributor stats, or company leaderboard?"
+---
+
+Ever had a list of engineers and wanted to quickly figure out who's been around the longest in each role? Maybe for a dev team dashboard, contributor stats, or company leaderboard?
+
+Here's a short, powerful function in **JavaScript or TypeScript** that does just that.
+
+## The Dev Team
+
+We'll work with this sample **Developer** type:
+
+```ts
+type Developer = {
+  name: string;
+  role: string;
+  yearsOfExperience: number;
+};
+```
+
+## The Goal
+
+From a list of developers, **get the most experienced person for each unique role** (Frontend, Backend, DevOps, etc.).
+
+## The Function
+
+Here’s the utility function that makes it happen:
+
+```ts
+export const getMostExperiencedPerRole = (
+  devs: Developer[] | null | undefined
+): Record<string, { name: string; yearsOfExperience: number }> => {
+  if (!Array.isArray(devs)) return {};
+
+  return devs.reduce<
+    Record<string, { name: string; yearsOfExperience: number }>
+  >((acc, dev) => {
+    const current = acc[dev.role];
+
+    if (!current || dev.yearsOfExperience > current.yearsOfExperience) {
+      acc[dev.role] = {
+        name: dev.name,
+        yearsOfExperience: dev.yearsOfExperience,
+      };
+    }
+
+    return acc;
+  }, {});
+};
+```
+
+## Example Data
+
+Let’s try it with a realistic dev team:
+
+```ts
+const devTeam: Developer[] = [
+  { name: "Alice", role: "Frontend Engineer", yearsOfExperience: 3 },
+  { name: "Bob", role: "Backend Engineer", yearsOfExperience: 5 },
+  { name: "Charlie", role: "Frontend Engineer", yearsOfExperience: 6 },
+  { name: "Diana", role: "DevOps", yearsOfExperience: 4 },
+  { name: "Eve", role: "Backend Engineer", yearsOfExperience: 7 },
+  { name: "Frank", role: "DevOps", yearsOfExperience: 2 },
+];
+```
+
+Now call the function:
+
+```ts
+const topDevs = getMostExperiencedPerRole(devTeam);
+
+console.log(topDevs);
+```
+
+## Output
+
+```ts
+{
+  'Frontend Engineer': { name: 'Charlie', yearsOfExperience: 6 },
+  'Backend Engineer': { name: 'Eve', yearsOfExperience: 7 },
+  DevOps: { name: 'Diana', yearsOfExperience: 4 }
+}
+
+```
+
+## Why This Works
+
+- We use <code>.reduce()</code> to walk through the array once.
+- For each dev:
+  - If no one in that role is stored yet, we add them.
+  - If they have more experience than the current one, we update the record.
+
+This gives you a flat object where each key is a role, and each value is the most experienced person in that role.
+
+## Use Cases
+
+- Dev team dashboards
+- Contributor recognition features
+- Performance reports
+- Internal admin tools
+
+## Final Thoughts
+
+This is a great example of how <code>.reduce()</code> isn't just for summing numbers — it can power up your data transformation logic in very readable and performant ways.
