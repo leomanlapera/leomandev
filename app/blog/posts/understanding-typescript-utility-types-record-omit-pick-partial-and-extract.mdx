@@ -1,0 +1,95 @@
+---
+title: "Understanding TypeScript Utility Types: Record, Omit, Pick, Partial, and Extract"
+publishedAt: "2025-06-03"
+summary: "TypeScript comes with built-in utility types that help us transform and work with types more effectively."
+---
+
+TypeScript comes with built-in utility types that help us transform and work with types more effectively. Here’s a quick and beginner-friendly guide to five of the most commonly used ones.
+
+## Record`<Keys, Type>`
+
+What it does: Creates an object type with specific keys, and all values having the same type.
+
+```ts
+type UserRole = "admin" | "editor" | "viewer";
+
+const roles: Record<UserRole, boolean> = {
+  admin: true,
+  editor: false,
+  viewer: true,
+};
+```
+
+Think of it as: An object where every key is required and the values all follow a single type.
+
+## Omit`<Type, Keys>`
+
+What it does: Removes specific keys from a type.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+type PublicUser = Omit<User, "email">;
+```
+
+Result: `PublicUser` will have only `id` and `name`.
+
+## Pick`<Type, Keys>`
+
+What it does: Selects specific keys from a type.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+type UserPreview = Pick<User, "name" | "email">;
+```
+
+Result: `UserPreview` will only include `name` and `email`.
+
+## Partial`<Type>`
+
+What it does: Makes all properties optional.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+};
+
+type UpdateUser = Partial<User>;
+```
+
+Result: `UpdateUser` can be `{}`, `{ id: "123" }`, or `{ name: "John" }`.
+
+## Extract`<Type, Union>`
+
+What it does: Extracts only the types that are shared between two unions.
+
+```ts
+type Roles = "admin" | "editor" | "user";
+type AllowedRoles = Extract<Roles, "admin" | "user">;
+```
+
+Result: `AllowedRoles` will be `'admin' | 'user'`.
+
+## Summary
+
+```table
+| Utility   | What it does                                     |
+| --------- | ------------------------------------------------ |
+| `Record`  | Create an object with fixed keys and value types |
+| `Omit`    | Remove keys from a type                          |
+| `Pick`    | Select only specific keys from a type            |
+| `Partial` | Make all fields optional                         |
+| `Extract` | Keep only matching values from a union           |
+```
+
+Tip: These utilities are great for building reusable, flexible types. They're simple but powerful once you get the hang of them!
